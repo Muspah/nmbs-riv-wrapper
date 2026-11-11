@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
-      # FTP account is chrooted to public_html/repo, so remote paths are relative to the repo root.
-      LFTP: lftp ftp://web0165.zxcs.nl
+      # FTP account is chrooted to the repo root, so remote paths are relative to it.
+      # Password goes in via --env-password (LFTP_PASSWORD) so special characters arrive verbatim.
+      LFTP: lftp --env-password ftp://web0165.zxcs.nl
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -33,13 +34,8 @@ jobs:
       # The server doesn't send its intermediate cert, so fetch it from the cert's AIA URL to verify the chain.
       - name: Set up FTPS
         if: env.RELEASE == 'true'
-        env:
-          FTP_USER: ${{ secrets.FTP_USER }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          printf 'machine %s login %s password %s\n' "$FTP_HOST" "$FTP_USER" "$FTP_PASSWORD" > ~/.netrc
-          chmod 600 ~/.netrc
           aia=$(echo | openssl s_client -starttls ftp -connect $FTP_HOST:21 2>/dev/null \
             | openssl x509 -noout -ext authorityInfoAccess | sed -n 's/.*CA Issuers - URI://p')
           { cat /etc/ssl/certs/ca-certificates.crt; curl -fsS "$aia" | openssl x509 -inform DER; } > /tmp/ca.pem
@@ -58,9 +54,12 @@ jobs:
       # instead of replacing the version list. Skipped when it doesn't exist yet (first release).
       - name: Fetch existing metadata
         if: env.RELEASE == 'true'
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          if $LFTP -e "cls -d $ARTIFACT_PATH; quit" >/dev/null; then
-            $LFTP -e "mirror $ARTIFACT_PATH $REPO/$ARTIFACT_PATH; quit"
+          if $LFTP -u "$FTP_USER" -e "cls -d $ARTIFACT_PATH; quit" >/dev/null; then
+            $LFTP -u "$FTP_USER" -e "mirror $ARTIFACT_PATH $REPO/$ARTIFACT_PATH; quit"
           fi
 
       # Builds, tests and deploys into a file-based Maven repo layout (pom, jar, sources, javadoc, checksums, metadata).
@@ -68,7 +67,10 @@ jobs:
 
       - name: Upload to repo.internetpolice.eu
         if: env.RELEASE == 'true'
-        run: $LFTP -e "mirror -R $REPO/ .; quit"
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: $LFTP -u "$FTP_USER" -e "mirror -R $REPO/ .; quit"
 
       - uses: actions/upload-artifact@v4
         with:
