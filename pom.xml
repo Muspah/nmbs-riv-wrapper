@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>nl.ovdata</groupId>
     <artifactId>nmbs-api-wrapper</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <name>NMBS/SNCB API Wrapper</name>
     <description>Unofficial Java client for the mobile NMBS/SNCB (Belgian Rail) backend APIs: live departure/arrival

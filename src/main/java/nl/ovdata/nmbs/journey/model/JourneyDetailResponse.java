@@ -21,6 +21,7 @@ public record JourneyDetailResponse(
         @JsonProperty("rtLastPassRouteIdx") Integer realTimeLastPassedRouteIndex,
         @JsonProperty("ref") String ref,
         @JsonProperty("reachable") Boolean reachable,
+        @JsonProperty("TechnicalMessages") TechnicalMessages technicalMessages,
         @JsonProperty("serverVersion") String serverVersion,
         @JsonProperty("dialectVersion") String dialectVersion,
         @JsonProperty("requestId") String requestId

@@ -12,6 +12,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record JourneyPlanResponse(
         @JsonProperty("Trip") List<Trip> trips,
+        @JsonProperty("TechnicalMessages") TechnicalMessages technicalMessages,
         @JsonProperty("serverVersion") String serverVersion,
         @JsonProperty("dialectVersion") String dialectVersion,
         @JsonProperty("requestId") String requestId

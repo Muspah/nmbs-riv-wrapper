@@ -3,6 +3,7 @@ package nl.ovdata.nmbs.journey.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -27,7 +28,8 @@ public record Leg(
         @JsonProperty("reachable") Boolean reachable,
         @JsonProperty("direction") String direction,
         @JsonProperty("duration") String duration,
-        @JsonProperty("OperationalInfo") List<OperationalInfo> operationalInfo
+        @JsonProperty("OperationalInfo") List<OperationalInfo> operationalInfo,
+        @JsonProperty("JourneyDetail") JourneyDetail journeyDetail
 ) {
 
     /**
@@ -38,6 +40,18 @@ public record Leg(
      */
     public List<PasslistStop> stops() {
         return stopsWrapper == null ? List.of() : stopsWrapper.stop() == null ? List.of() : stopsWrapper.stop();
+    }
+
+    /**
+     * The {@code JourneyDetail} block of a leg in a journey search response.
+     *
+     * @param dayOfOperation the HAFAS day this leg's {@code ref} belongs to
+     */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record JourneyDetail(
+            @JsonProperty("dayOfOperation") LocalDate dayOfOperation,
+            @JsonProperty("ref") String ref
+    ) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

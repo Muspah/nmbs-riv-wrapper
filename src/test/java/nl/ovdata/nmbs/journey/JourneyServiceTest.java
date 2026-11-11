@@ -64,6 +64,9 @@ class JourneyServiceTest {
         assertThat(leg.products()).hasSize(1);
         assertThat(leg.products().get(0).number()).isEqualTo("4021");
         assertThat(leg.journeyDetailRef().ref()).isEqualTo("1|9570|0|80|23082026");
+        assertThat(leg.journeyDetail().dayOfOperation()).isEqualTo(LocalDate.of(2026, 8, 23));
+        assertThat(response.technicalMessages().planId()).isEqualTo("1791150232");
+        assertThat(response.technicalMessages().value("requestTime")).isEqualTo("2026-10-05 22:21:13");
 
         FakeHttpServer.RecordedRequest request = server.lastRequest();
         assertThat(request.uri().getPath()).isEqualTo("/riv/v2/journey");
@@ -83,6 +86,7 @@ class JourneyServiceTest {
         assertThat(detail.ref()).isEqualTo("1|9570|0|80|23082026");
         assertThat(detail.dayOfOperation()).isEqualTo(LocalDate.of(2026, 8, 23));
         assertThat(detail.stops()).hasSize(2);
+        assertThat(detail.technicalMessages().planId()).isEqualTo("1791150232");
 
         PasslistStop last = detail.stops().get(1);
         assertThat(last.name()).isEqualTo("Louvain / Leuven");
