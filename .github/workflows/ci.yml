@@ -19,8 +19,8 @@ jobs:
       # FTP account is chrooted to public_html/repo, so remote paths are relative to the repo root.
       LFTP: lftp ftp://web0165.zxcs.nl
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -49,6 +49,9 @@ jobs:
           set ssl:verify-certificate true
           set ssl:ca-file /tmp/ca.pem
           set cmd:fail-exit true
+          set net:timeout 30
+          set net:max-retries 2
+          set net:reconnect-interval-base 5
           EOF
 
       # Pull the existing artifact dir so Maven merges the new version into maven-metadata.xml
@@ -56,14 +59,14 @@ jobs:
       - name: Fetch existing metadata
         if: env.RELEASE == 'true'
         run: |
-          if $LFTP -e "cls -d $ARTIFACT_PATH; quit" >/dev/null 2>&1; then
+          if $LFTP -e "cls -d $ARTIFACT_PATH; quit" >/dev/null; then
             $LFTP -e "mirror $ARTIFACT_PATH $REPO/$ARTIFACT_PATH; quit"
           fi
 
       # Builds, tests and deploys into a file-based Maven repo layout (pom, jar, sources, javadoc, checksums, metadata).
       - run: mvn -B clean deploy -DaltDeploymentRepository=local::file:$REPO
 
-      - name: Upload to repo.biemcraft.nl
+      - name: Upload to repo.internetpolice.eu
         if: env.RELEASE == 'true'
         run: $LFTP -e "mirror -R $REPO/ .; quit"
 
