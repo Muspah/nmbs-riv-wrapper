@@ -16,10 +16,16 @@ below.
 
 ## Installation
 
-Build and install into your local repository:
+Releases are published to the Maven repository at `https://repo.internetpolice.eu/repo`. Add it to your
+`pom.xml`:
 
-```bash
-mvn clean install
+```xml
+<repositories>
+    <repository>
+        <id>internetpolice</id>
+        <url>https://repo.internetpolice.eu/repo</url>
+    </repository>
+</repositories>
 ```
 
 Then depend on it:
@@ -28,9 +34,11 @@ Then depend on it:
 <dependency>
     <groupId>nl.ovdata</groupId>
     <artifactId>nmbs-api-wrapper</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
+
+Alternatively, build and install it into your local repository with `mvn clean install`.
 
 The library depends only on Apache HttpClient5, Jackson Databind, and the SLF4J API. It brings no logging
 implementation of its own — plug in whichever one (Logback, Log4j2, ...) your application already uses.
