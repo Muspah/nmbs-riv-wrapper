@@ -34,7 +34,7 @@ Then depend on it:
 <dependency>
     <groupId>nl.ovdata</groupId>
     <artifactId>nmbs-api-wrapper</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 

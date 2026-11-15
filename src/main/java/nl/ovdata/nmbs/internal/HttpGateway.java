@@ -60,7 +60,11 @@ public final class HttpGateway implements Closeable {
      */
     public <T> T getJson(String baseUrl, String path, Map<String, String> query, Map<String, String> headers,
                          Class<T> type) {
-        String body = getRaw(baseUrl, path, query, headers);
+        return parse(path, getRaw(baseUrl, path, query, headers), type);
+    }
+
+    /** Deserializes a response body (from {@link #getRaw}) of {@code path} as {@code type}. */
+    public <T> T parse(String path, String body, Class<T> type) {
         try {
             return objectMapper.readValue(body, type);
         } catch (IOException e) {

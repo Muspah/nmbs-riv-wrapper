@@ -98,6 +98,16 @@ class JourneyServiceTest {
     }
 
     @Test
+    void journeyDetailRaw_returnsTheBodyUnchanged() {
+        String body = TestFixtures.load("journey-detail.json").replaceFirst("\\{", "{\"unmappedField\":[1,2],");
+        server.respondWith(200, body);
+
+        assertThat(service.journeyDetailRaw("1|9570|0|80|23082026")).isEqualTo(body);
+        assertThat(service.parseJourneyDetail(body).dayOfOperation()).isEqualTo(LocalDate.of(2026, 8, 23));
+        assertThat(server.lastRequest().uri().getPath()).isEqualTo("/riv/v2/journey/detail");
+    }
+
+    @Test
     void reconstructJourney_parsesPasslistOnTheLeg() {
         server.respondWith(200, TestFixtures.load("journey-recon.json"));
 

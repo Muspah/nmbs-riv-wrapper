@@ -18,6 +18,7 @@ import java.util.Map;
 public final class JourneyService {
 
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final String JOURNEY_DETAIL_PATH = "/riv/v2/journey/detail";
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     private final HttpGateway http;
@@ -97,10 +98,24 @@ public final class JourneyService {
      * @param journeyDetailRef opaque reference obtained from {@link nl.ovdata.nmbs.journey.model.Leg#journeyDetailRef()}
      */
     public JourneyDetailResponse journeyDetail(String journeyDetailRef) {
+        return parseJourneyDetail(journeyDetailRaw(journeyDetailRef));
+    }
+
+    /**
+     * Same request as {@link #journeyDetail}, but returns the response body unchanged, including the fields the
+     * model does not map (e.g. {@code Messages}, {@code partCancelled}, per-stop {@code arrPrognosisType}).
+     * Parse it with {@link #parseJourneyDetail}.
+     */
+    public String journeyDetailRaw(String journeyDetailRef) {
         Map<String, String> query = new LinkedHashMap<>();
         query.put("id", journeyDetailRef);
         query.put("lang", "en");
-        return http.getJson(config.rivBaseUrl(), "/riv/v2/journey/detail", query, headers(), JourneyDetailResponse.class);
+        return http.getRaw(config.rivBaseUrl(), JOURNEY_DETAIL_PATH, query, headers());
+    }
+
+    /** Parses a body returned by {@link #journeyDetailRaw}. */
+    public JourneyDetailResponse parseJourneyDetail(String body) {
+        return http.parse(JOURNEY_DETAIL_PATH, body, JourneyDetailResponse.class);
     }
 
     /**
